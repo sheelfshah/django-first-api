@@ -7,6 +7,9 @@ from api_app.permissions import IsCreatorOrReadOnly
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from django.contrib.auth import login
+# from django.contrib.auth import authenticate, logout
+# from django.shortcuts import render, get_object_or_404, redirect
 
 
 @api_view(['GET'])
@@ -18,13 +21,17 @@ def api_root(request, format=None):
         })
 
 
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
+class UserList(generics.ListCreateAPIView):
+    queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        login(self.request, user)
 
 
 class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
+    queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
 
 
